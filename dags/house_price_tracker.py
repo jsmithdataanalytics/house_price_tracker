@@ -3,6 +3,8 @@ from datetime import timedelta, datetime
 from airflow import DAG
 from airflow.operators.python_operator import PythonOperator
 
+from property.zoopla import Zoopla
+
 # These args will get passed on to each operator
 # You can override them on a per-task basis during operator initialization
 default_args = {
@@ -13,7 +15,7 @@ default_args = {
     'email_on_failure': False,
     'email_on_retry': False,
     'retries': 1,
-    'retry_delay': timedelta(minutes=5),
+    'retry_delay': timedelta(minutes=5)
 }
 
 dag = DAG(
@@ -21,20 +23,20 @@ dag = DAG(
     default_args=default_args,
     catchup=False,
     description='Retrieves Zoopla property listings and analyses prices',
-    schedule_interval=timedelta(days=7),
+    schedule_interval=timedelta(days=7)
 )
 
 t1 = PythonOperator(
     task_id='get_listings',
-    python_callable=print,
-    op_args=['Task 1 Success!'],
+    python_callable=Zoopla().get_listings,
+    op_kwargs={'query': 'West Midlands', 'by': 'county'},
     dag=dag,
 )
 
 t2 = PythonOperator(
     task_id='send_email',
     python_callable=print,
-    op_args=['Task 2 Success!'],
+    op_args=['Email sent!'],
     dag=dag,
 )
 
