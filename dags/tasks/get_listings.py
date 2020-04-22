@@ -1,9 +1,6 @@
 from property.zoopla import Zoopla
-from time import sleep
+from utils.db import InsertBuffer
 
 
 def get_listings():
-
-    for listing in Zoopla().get_listings():
-        print(listing)
-        sleep(0.01)
+    InsertBuffer(size=500, table_name='Listings').run(Zoopla().get_listings())

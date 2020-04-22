@@ -44,7 +44,11 @@ class Zoopla(PropertyLister):
         return page
 
     def __make_request(self, page_number: int) -> Response:
-        return requests_retry_session().get(self.url, params={'pn': page_number}, timeout=5)
+        print(f'Requesting Zoopla listings (page {page_number})...')
+        response = requests_retry_session().get(self.url, params={'pn': page_number}, timeout=5)
+        print('Success.')
+
+        return response
 
     def get_listings(self) -> Iterable:
         page_number = 0
