@@ -1,83 +1,57 @@
-from property import PropertyLister
+import re
 from typing import Iterable, List, Dict
-from utils.web import requests_retry_session
-from requests import Response
-from time import sleep
+
 from airflow.hooks.http_hook import HttpHook
+from bs4 import BeautifulSoup
+from requests import Response
+
+from property import PropertyLister
+from utils.web import requests_retry_session
 
 
 class Zoopla(PropertyLister):
-    page_size = 100
-    rate_limit_header = ('X-Mashery-Error-Code', 'ERR_403_DEVELOPER_OVER_RATE')
-    output_types = {'county', 'country', 'town', 'outcode', 'postcode'}
-    api_key_cycle_sleep = 600
     conn_id = 'zoopla'
+    outcode_regex = '(?:[^a-zA-Z0-9]|^)([A-Z]{1,2}\\d{1,2})(?:[^a-zA-Z0-9]|$)'
 
     def __init__(self):
-        self.url = None
-        self.api_keys = None
-        self.current_api_key_number = None
+        self.url = HttpHook.get_connection(Zoopla.conn_id).host
 
-    def __fetch_connections(self):
-        connection = HttpHook.get_connection(Zoopla.conn_id)
+    def __get_page(self, page_number: int) -> List[Dict]:
+        page = []
+        response = self.__make_request(page_number=page_number)
+        soup = BeautifulSoup(response.text, 'html.parser')
+        ul = soup.find(name='ul', attrs={'class': 'listing-results'})
+        listings = ul.find_all(name='li', attrs={'data-listing-id': True})
 
-        self.url = f'https://{connection.host}/{connection.schema}'
-        self.api_keys = connection.extra_dejson['api_keys']
-        self.current_api_key_number = 0
+        for listing in listings:
+            listing_id = listing.attrs['data-listing-id']
+            price_text = listing.find(name='a', attrs={'class': 'listing-results-price'}).text
+            price_found = re.search('£([0-9.,]+)', price_text)
+            bedrooms_tag = listing.find(name='span', attrs={'class': 'num-beds'})
+            num_bedrooms = int(bedrooms_tag.text.strip()) if bedrooms_tag else None
+            outcodes = re.findall(Zoopla.outcode_regex, listing.find(attrs={'class': 'listing-results-address'}).text)
+            outcode = outcodes[-1] if outcodes else None
 
-    def __get_current_api_key(self):
-        return self.api_keys[self.current_api_key_number]
+            if price_found:
+                listing_price = float(price_found[1].replace(',', ''))
+                page.append({
+                    'listing_id': listing_id,
+                    'listing_price': listing_price,
+                    'num_bedrooms': num_bedrooms,
+                    'outcode': outcode
+                })
 
-    def __rotate_api_key(self):
-        self.current_api_key_number = (self.current_api_key_number + 1) % len(self.api_keys)
+        return page
 
-    def __get_page(self, query: str, by: str, page_number: int) -> List[Dict]:
+    def __make_request(self, page_number: int) -> Response:
+        return requests_retry_session().get(self.url, params={'pn': page_number}, timeout=5)
 
-        while True:
-            response = self.__make_request(
-                query=query,
-                by=by,
-                page_number=page_number,
-                api_key=self.__get_current_api_key()
-            )
-
-            if response.status_code == 200:
-                return response.json().get('listing') or []
-
-            if response.status_code == 403 and Zoopla.rate_limit_header in response.headers.items():
-                # if you get this 403, your api key has been rate limited (max 100 calls/hour)
-                self.__rotate_api_key()
-
-                if self.current_api_key_number == 0:
-                    # if you have been through all api keys, wait 10 minutes to avoid excess calls
-                    sleep(Zoopla.api_key_cycle_sleep)
-
-            else:
-                response.raise_for_status()
-                raise Exception(f'Unexpected HTTP status code: {response.status_code}')
-
-    def __make_request(self, query: str, by: str, page_number: int, api_key: str) -> Response:
-        assert by in Zoopla.output_types
-
-        params = {
-            by: query,
-            'output_type': by,
-            'property_type': 'houses',
-            'listing_status': 'sale',
-            'page_number': page_number,
-            'page_size': Zoopla.page_size,
-            'api_key': api_key
-        }
-
-        return requests_retry_session().get(self.url, params=params, timeout=5)
-
-    def get_listings(self, query: str, by: str) -> Iterable:
-        self.__fetch_connections()
+    def get_listings(self) -> Iterable:
         page_number = 0
 
         while True:
             page_number += 1
-            listings_page = self.__get_page(query=query, by=by, page_number=page_number)
+            listings_page = self.__get_page(page_number=page_number)
 
             if not listings_page:
                 break

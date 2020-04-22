@@ -16,8 +16,7 @@ def requests_retry_session(
         read=retries,
         connect=retries,
         backoff_factor=backoff_factor,
-        status_forcelist=status_forcelist,
-        raise_on_status=False
+        status_forcelist=status_forcelist
     )
 
     adapter = HTTPAdapter(max_retries=retry)

@@ -5,5 +5,5 @@ from typing import Iterable
 class PropertyLister(ABC):
 
     @abstractmethod
-    def get_listings(self, query: str, by: str) -> Iterable:
+    def get_listings(self) -> Iterable:
         pass

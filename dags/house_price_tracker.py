@@ -3,7 +3,7 @@ from datetime import timedelta, datetime
 from airflow import DAG
 from airflow.operators.python_operator import PythonOperator
 
-from property.zoopla import Zoopla
+from tasks import get_listings
 
 # These args will get passed on to each operator
 # You can override them on a per-task basis during operator initialization
@@ -28,8 +28,7 @@ dag = DAG(
 
 t1 = PythonOperator(
     task_id='get_listings',
-    python_callable=Zoopla().get_listings,
-    op_kwargs={'query': 'West Midlands', 'by': 'county'},
+    python_callable=get_listings,
     dag=dag,
 )
 
