@@ -1,6 +1,6 @@
 from property.zoopla import Zoopla
-from utils.db import InsertBuffer
+from utils.db import Database
 
 
 def get_listings():
-    InsertBuffer(size=500, table_name='Listings').run(Zoopla().get_listings())
+    Database().insert(table_name='Listings', rows=Zoopla().get_listings())

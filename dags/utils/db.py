@@ -2,15 +2,20 @@ from typing import List, Dict, Iterable
 
 
 class Database:
-    pass
+    
+    def __init__(self):
+        pass
+    
+    def insert(self, table_name: str, rows: Iterable[Dict]):
+        InsertBuffer(db=self, table_name=table_name, size=500).run(rows)
 
 
 class InsertBuffer:
 
-    def __init__(self, size: int, table_name: str):
-        self.size = size
+    def __init__(self, db: Database, table_name: str, size: int):
+        self.db = db
         self.table_name = table_name
-        self.db = Database()
+        self.size = size
         self.data: List[Dict] = []
 
     def __len__(self):
@@ -27,8 +32,8 @@ class InsertBuffer:
         self.data.append(item)
 
     def __flush(self):
-        print(f'Inserting batch of {len(self)} to {self.table_name} table...')
-        # db upload
+        print(f'Uploading batch of {len(self)} {self.table_name.lower()} to database...')
+        # db batch insert
         print('Done.')
         self.data = []
 
