@@ -1,8 +1,8 @@
-from typing import List, Dict, Iterable
 import sqlite3
-from airflow.hooks.sqlite_hook import SqliteHook
+from typing import List, Dict, Iterable
+from os import environ
 
-db_filename = SqliteHook.get_connection('property_db').host
+db_filename = environ['DATABASE_URL'][10:]
 
 
 def select_all(table_name: str):

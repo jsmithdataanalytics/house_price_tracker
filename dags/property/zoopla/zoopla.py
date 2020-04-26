@@ -1,8 +1,8 @@
 import re
 from datetime import datetime
+from os import environ
 from typing import Iterable, List, Dict
 
-from airflow.hooks.http_hook import HttpHook
 from bs4 import BeautifulSoup
 from requests import Response
 
@@ -17,13 +17,13 @@ def format_zoopla_date(date_found) -> str:
 
 
 class Zoopla(PropertyLister):
-    conn_id = 'zoopla'
+    url = environ['ZOOPLA_SEARCH']
     outcode_regex = '(?:[^a-zA-Z0-9]|^)([A-Z]{1,2}\\d{1,2})(?:[^a-zA-Z0-9]|$)'
     listing_date_regex = '(\\d{1,2})(?:st|nd|rd|th)\\s+(Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)\\s+(\\d{4})'
     reduced_date_regex = 'Last\\s+reduced:\\s+' + listing_date_regex
 
     def __init__(self):
-        self.url = HttpHook.get_connection(Zoopla.conn_id).host
+        pass
 
     def __get_page(self, page_number: int) -> List[Dict]:
         page = []
