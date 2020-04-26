@@ -80,7 +80,4 @@ class Zoopla(PropertyLister):
                 break
 
             while listings_page:
-                listing = listings_page.pop()
-                print(f'Got listing: {listing}')
-
-                yield listing
+                yield listings_page.pop()

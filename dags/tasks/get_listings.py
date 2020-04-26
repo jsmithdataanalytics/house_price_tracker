@@ -1,6 +1,6 @@
 from property.zoopla import Zoopla
-from utils.db import Database
+from utils import db
 
 
 def get_listings():
-    Database().insert(table_name='Listings', rows=Zoopla().get_listings())
+    db.insert(table_name='Listings', items=Zoopla().get_listings())

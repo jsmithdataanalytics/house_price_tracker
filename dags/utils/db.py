@@ -1,19 +1,17 @@
 from typing import List, Dict, Iterable
+from sqlite3 import connect
+from airflow.hooks.sqlite_hook import SqliteHook
 
+db_filename = SqliteHook.get_connection('property_db').host
 
-class Database:
     
-    def __init__(self):
-        pass
-    
-    def insert(self, table_name: str, rows: Iterable[Dict]):
-        InsertBuffer(db=self, table_name=table_name, size=500).run(rows)
+def insert(table_name: str, items: Iterable[Dict]):
+    InsertBuffer(table_name=table_name, size=500).run(items)
 
 
 class InsertBuffer:
 
-    def __init__(self, db: Database, table_name: str, size: int):
-        self.db = db
+    def __init__(self, table_name: str, size: int):
         self.table_name = table_name
         self.size = size
         self.data: List[Dict] = []
@@ -33,7 +31,20 @@ class InsertBuffer:
 
     def __flush(self):
         print(f'Uploading batch of {len(self)} {self.table_name.lower()} to database...')
-        # db batch insert
+        column_names = list(self.data[0].keys())
+        values = [tuple(item[column_name] for column_name in column_names) for item in self.data]
+
+        column_names_string = ', '.join([f'`{column_name}`' for column_name in column_names])
+        placeholders_string = ', '.join(['?'] * len(column_names))
+        query = f'REPLACE INTO `{self.table_name}` ({column_names_string}) VALUES ({placeholders_string})'
+
+        connection = connect(db_filename)
+
+        with connection:
+            connection.executemany(query, values)
+
+        connection.close()
+
         print('Done.')
         self.data = []
 

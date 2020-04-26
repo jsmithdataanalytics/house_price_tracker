@@ -3,7 +3,7 @@ from datetime import timedelta, datetime
 from airflow import DAG
 from airflow.operators.python_operator import PythonOperator
 
-from tasks import get_listings
+from tasks import get_listings, send_email
 
 # These args will get passed on to each operator
 # You can override them on a per-task basis during operator initialization
@@ -34,8 +34,7 @@ t1 = PythonOperator(
 
 t2 = PythonOperator(
     task_id='send_email',
-    python_callable=print,
-    op_args=['Email sent!'],
+    python_callable=send_email,
     dag=dag,
 )
 
