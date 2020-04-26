@@ -1,5 +1,5 @@
 # House Price Tracker
-Retrieves Zoopla property listings and analyses prices
+An Airflow pipeline that regularly scrapes asking prices from Zoopla and performs analytics
 
 ## Installation
 1. Clone the repo
