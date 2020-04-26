@@ -3,13 +3,11 @@ An Airflow pipeline that regularly scrapes asking prices from Zoopla and perform
 
 ## Install
 1. Clone the repo
-2. Install dbmate: https://github.com/amacneil/dbmate
-3. ```source ./config.sh```
-4. ```pip install -r requirements.txt```
-5. ```dbmate up```
-6. ```airflow initdb```
+2. ```source ./build.sh```
 
 ## Run
-1. ```airflow webserver -p 8080```
-2. ```airflow scheduler```
-3. In browser, turn on "house_price_tracker" DAG
+1. In one tmux session: ```airflow webserver -p 8080```
+2. In another: ```airflow scheduler```
+3. In browser, go to Admin > Connections
+4. Create connection "sender_email" with host, port, login, password
+5. Turn on "house_price_tracker" DAG

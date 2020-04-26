@@ -118,3 +118,6 @@ airflow/
 *.db-journal
 *.sqlite3
 *.sqlite3-journal
+
+# config file
+config.sh

@@ -1,5 +1,8 @@
 import pandas as pd
 from utils import db
+from airflow.hooks.base_hook import BaseHook
+
+email_connection = BaseHook.get_connection('sender_email')
 
 
 def send_email():
