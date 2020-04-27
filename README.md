@@ -3,9 +3,10 @@ An Airflow pipeline that regularly scrapes asking prices from Zoopla and perform
 
 ## Install
 1. Clone the repo
-2. ```source ./build.sh```
+2. ```pip install -r requirements.txt```
+3. ```source ./build.sh```
 
-## Run
+## Run locally
 1. In one tmux session: ```airflow webserver -p 8080```
 2. In another: ```airflow scheduler```
 3. In browser, go to Admin > Connections
