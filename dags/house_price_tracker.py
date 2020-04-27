@@ -1,7 +1,8 @@
-from datetime import timedelta, datetime
+from datetime import timedelta
 
 from airflow import DAG
 from airflow.operators.python_operator import PythonOperator
+from airflow.utils import timezone
 
 from tasks import get_listings, send_email
 
@@ -11,7 +12,7 @@ default_args = {
     'owner': 'james',
     'depends_on_past': True,
     'wait_for_downstream': True,
-    'start_date': datetime(year=2020, month=1, day=1),
+    'start_date': timezone.datetime(year=2020, month=1, day=1),
     'email_on_failure': False,
     'email_on_retry': False,
     'retries': 1,
@@ -23,7 +24,7 @@ dag = DAG(
     default_args=default_args,
     catchup=False,
     description='Retrieves Zoopla property listings and analyses prices',
-    schedule_interval=timedelta(days=7)
+    schedule_interval=timedelta(days=1)
 )
 
 t1 = PythonOperator(
@@ -34,6 +35,7 @@ t1 = PythonOperator(
 
 t2 = PythonOperator(
     task_id='send_email',
+    provide_context=True,
     python_callable=send_email,
     dag=dag,
 )
