@@ -4,3 +4,5 @@ requests==2.23.0
 urllib3==1.25.9
 beautifulsoup4==4.9.0
 pandas==0.25.3
+plotly==4.6.0
+pendulum==1.4.4
