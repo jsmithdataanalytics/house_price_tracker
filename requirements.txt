@@ -6,3 +6,4 @@ beautifulsoup4==4.9.0
 pandas==0.25.3
 plotly==4.6.0
 pendulum==1.4.4
+typing_extensions==3.7.4.2
