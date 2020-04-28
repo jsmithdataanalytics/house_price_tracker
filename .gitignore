@@ -123,4 +123,4 @@ airflow/
 config.sh
 
 # report files
-reports/
+reports/*.html
