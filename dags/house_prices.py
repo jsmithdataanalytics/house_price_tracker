@@ -20,7 +20,7 @@ default_args = {
 }
 
 dag = DAG(
-    'house_price_tracker',
+    'house_prices',
     default_args=default_args,
     catchup=False,
     description='Retrieves Zoopla property listings and analyses prices',

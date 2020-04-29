@@ -5,6 +5,7 @@ An Airflow pipeline that regularly scrapes asking prices from Zoopla and perform
 1. Clone the repo
 2. ```pip install -r requirements.txt```
 3. ```source ./build.sh```
+4. ```airflow initdb```
 
 ## Run
 1. ```source ./config.sh && airflow webserver -p 8080```

@@ -7,5 +7,4 @@ sudo chmod 777 ./config.sh
 echo export AIRFLOW__CORE__FERNET_KEY=`python3 generate_fernet_key.py` | sudo tee -a ./config.sh || exit 1
 source ./config.sh || exit 1
 dbmate up || exit 1
-airflow initdb || exit 1
 echo "Success!"
