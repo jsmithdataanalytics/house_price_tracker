@@ -1,5 +1,5 @@
 apache-airflow[crypto,password]==1.10.10
-cryptography==2.9
+cryptography==3.2
 requests==2.23.0
 urllib3==1.25.9
 beautifulsoup4==4.9.0
